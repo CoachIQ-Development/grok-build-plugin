@@ -1,11 +1,12 @@
 {
   "name": "coachiq",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Manage a CoachIQ coaching business: bookings, clients, forms, lessons, inbox, programs, website.",
   "author": {
     "name": "CoachIQ",
     "email": "support@coachiq.io"
   },
   "homepage": "https://www.coachiq.io",
-  "keywords": ["coaching", "scheduling", "bookings", "crm", "forms", "sports"]
+  "license": "MIT",
+  "keywords": ["coachiq", "coachiq mcp", "coachiq bookings", "coachiq clients"]
 }
