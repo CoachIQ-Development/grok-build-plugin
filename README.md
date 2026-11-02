@@ -14,6 +14,23 @@ Without the marketplace, any Grok user can add the server at https://grok.com/co
 (**New Connector → Custom**, paste the URL). Grok Business/Enterprise admins provision it once in
 the cloud console (Grok → Connector management) before members can use it.
 
+## Network endpoints and permissions
+
+- The only network endpoint is `https://mcp.coachiq.io/mcp` (Streamable HTTP). Its OAuth
+  authorization server is the same host (`/.well-known/oauth-authorization-server`,
+  `/authorize`, `/token`, `/register`). Nothing else is contacted.
+- Credentials: none are stored in the plugin. Grok Build registers itself as a public OAuth client
+  (dynamic client registration, PKCE S256) and the user signs in on CoachIQ's consent page. Scopes:
+  `coachiq:mcp:read` always; `coachiq:mcp:write` only if the user ticks it at consent.
+- Permissions: the connection acts as the signed-in CoachIQ Admin or Coach, limited to the one
+  CoachIQ group chosen at consent, re-authorized live on every call. Writes are confirmed per
+  request and logged in CoachIQ under Settings > Logs.
+- The plugin ships no code, hooks, skills or commands: only this MCP server configuration.
+
+## License
+
+MIT (see `LICENSE`). The CoachIQ service itself is governed by https://www.coachiq.io/terms.
+
 ## Submitting to the marketplace (CoachIQ maintainers)
 
 The marketplace is the public repo https://github.com/xai-org/plugin-marketplace; listing is a
@@ -26,18 +43,21 @@ pull request reviewed by code owners.
    ```json
    {
      "name": "coachiq",
-     "source": { "source": "url", "url": "https://github.com/CoachIQ-Development/grok-build-plugin", "sha": "<40-char commit sha>" },
-     "description": "Manage a CoachIQ coaching business: bookings, clients, forms, lessons, inbox, programs, website.",
+     "description": "Manage a CoachIQ coaching business from Grok Build: bookings, clients, forms, lessons, inbox, programs, website. Remote MCP server with OAuth sign-in.",
      "category": "productivity",
-     "homepage": "https://www.coachiq.io",
-     "keywords": ["coaching", "scheduling", "bookings", "crm"],
-     "domains": ["coachiq.io"],
-     "version": "1.0.0",
-     "author": { "name": "CoachIQ", "email": "support@coachiq.io" }
+     "source": { "source": "url", "url": "https://github.com/CoachIQ-Development/grok-build-plugin.git", "sha": "<40-char commit sha of the release commit>" },
+     "homepage": "https://github.com/CoachIQ-Development/grok-build-plugin",
+     "keywords": ["coachiq", "coachiq mcp", "coachiq bookings"],
+     "domains": ["coachiq.io"]
    }
    ```
 
-   Check the repo's current `marketplace.json` for the exact `source` object shape and the allowed
-   `category` values before opening the PR; the validator is the authority.
-3. Run `python3 scripts/generate-plugin-index.py` and `python3 scripts/validate-catalog.py`, commit
-   the regenerated index, open the PR. Each new release needs a new PR bumping `sha` and `version`.
+   Field shape copied from the existing `vercel` entry (2026-11-02); categories in use are
+   database, deployment, development, media, monitoring, observability, productivity, security.
+   Keywords must be brand-specific (reviewers narrowed another plugin's generic terms).
+3. Run `python3 scripts/generate-plugin-index.py`, `python3 scripts/validate-catalog.py` and
+   `python3 scripts/generate-plugin-index.py --check`; commit the regenerated
+   `.grok-plugin/plugin-index.json` with the catalog change (never hand-edit the index).
+4. Open the PR using the repo template (What this PR does, Ownership, Checklist, Security, Notes
+   for reviewers); state the endpoint and auth from the section above. Model: PR #1629 (Expo).
+   Each new release needs a new PR bumping `sha`.
