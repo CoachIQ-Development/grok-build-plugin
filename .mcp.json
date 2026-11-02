@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "coachiq": {
+      "type": "http",
+      "url": "https://mcp.coachiq.io/mcp"
+    }
+  }
+}
